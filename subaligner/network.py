@@ -203,7 +203,7 @@ class Network(object):
 
         return self.__model.layers
 
-    def get_predictions(self, input_data: np.ndarray, weights_filepath: str) -> np.ndarray:
+    def get_predictions(self, input_data: np.ndarray, weights_filepath: Optional[str] = None) -> np.ndarray:
         """Get a Numpy array of predictions.
 
         Arguments:
@@ -213,7 +213,8 @@ class Network(object):
         Returns:
             numpy.ndarray -- The Numpy array of predictions.
         """
-        self.__model.load_weights(weights_filepath)
+        if weights_filepath is not None:
+            self.__model.load_weights(weights_filepath)
         return self.__model.predict_on_batch(input_data)
 
     def fit_and_get_history(

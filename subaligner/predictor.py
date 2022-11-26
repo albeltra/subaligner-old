@@ -58,7 +58,9 @@ class Predictor(metaclass=Singleton):
             self,
             video_file_path: str,
             subtitle_file_path: str,
-            weights_dir: str = os.path.join(os.path.dirname(__file__), "models", "training", "weights"),
+            weights_dir = None,
+            network,
+            channel
     ) -> Tuple[List[SubRipItem], str, Union[np.ndarray, List[float]], Optional[float]]:
         """Predict time to shift with single pass
 
@@ -71,7 +73,8 @@ class Predictor(metaclass=Singleton):
                 tuple -- The shifted subtitles, the audio file path and the voice probabilities of the original audio.
         """
 
-        weights_file_path = self.__get_weights_path(weights_dir)
+
+        weights_file_path = self.__get_weights_path(weights_dir) if (weights_dir is not None) else None
         audio_file_path = ""
         frame_rate = None
         try:
@@ -703,13 +706,14 @@ class Predictor(metaclass=Singleton):
             self,
             video_file_path: Optional[str],
             subtitle_file_path: Optional[str],
-            weights_file_path: str,
+            weights_file_path: str = None,
             audio_file_path: Optional[str] = None,
             subtitles: Optional[SubRipFile] = None,
             max_shift_secs: Optional[float] = None,
             previous_gap: Optional[float] = None,
             lock: Optional[threading.RLock] = None,
-            network: Optional[Network] = None
+            network: Optional[Network] = None,
+            channel: str = '0'
     ) -> Tuple[List[SubRipItem], str, np.ndarray]:
         """Shift out-of-sync subtitle cues by sending the audio track of an video to the trained network.
 
@@ -728,7 +732,13 @@ class Predictor(metaclass=Singleton):
             tuple -- The shifted subtitles, the audio file path and the voice probabilities of the original audio.
         """
         if network is None:
-            network = self.__initialise_network(os.path.dirname(weights_file_path), self.__LOGGER)
+            if weights_file_path is not None:
+                network = self.__initialise_network(os.path.dirname(weights_file_path), self.__LOGGER)
+            else:
+                raise TerminalException(
+                    "ERROR: Weights directory must be specified"
+                )
+
         result: Dict[str, Any] = {}
         pred_start = datetime.datetime.now()
         if audio_file_path is not None:
@@ -736,7 +746,7 @@ class Predictor(metaclass=Singleton):
         elif video_file_path is not None:
             t = datetime.datetime.now()
             audio_file_path = self.__media_helper.extract_audio(
-                video_file_path, True, 16000
+                video_file_path, True, 16000, channel
             )
             self.__LOGGER.debug(
                 "[{}] Audio extracted after {}".format(
