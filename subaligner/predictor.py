@@ -59,8 +59,8 @@ class Predictor(metaclass=Singleton):
             video_file_path: str,
             subtitle_file_path: str,
             weights_dir = None,
-            network,
-            channel
+            network = None,
+            channel: str = '0'
     ) -> Tuple[List[SubRipItem], str, Union[np.ndarray, List[float]], Optional[float]]:
         """Predict time to shift with single pass
 
