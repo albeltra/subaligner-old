@@ -79,7 +79,11 @@ class Predictor(metaclass=Singleton):
         frame_rate = None
         try:
             subs, audio_file_path, voice_probabilities = self.__predict(
-                video_file_path, subtitle_file_path, weights_file_path
+                video_file_path=video_file_path,
+                subtitle_file_path=subtitle_file_path,
+                weights_file_path=weights_file_path,
+                channel=channel,
+                network=network
             )
             try:
                 frame_rate = self.__media_helper.get_frame_rate(video_file_path)
