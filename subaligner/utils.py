@@ -507,14 +507,14 @@ class Utils(object):
         Utils._run_command(command, timeout_secs, timeout_msg, error_msg, _callback)
 
     @staticmethod
-    def extract_matroska_subtitle(mkv_file_path: str, stream_index: int, output_file_path: str, timeout_secs: int = 30) -> None:
+    def extract_matroska_subtitle(mkv_file_path: str, stream_index: int, timeout_secs: int = 30, output_file_path: str = "") -> None:
         """Extract subtitles from Matroska files and convert them into the output format.
-
         Arguments:
             mkv_file_path {string} -- The path to the Matroska file.
             stream_index {int} -- The index of the subtitle stream
             output_file_path {string} -- The path to the output file.
             timeout_secs {int} -- The timeout in seconds on extraction {default: 30}.
+            output_file_path {str} -- The path to save the extracted subtitle to {default: ""}.
         """
 
         command = "{0} -y -i '{1}' -map 0:s:{2} '{3}'".format(Utils.FFMPEG_BIN, mkv_file_path, stream_index, output_file_path)
@@ -530,6 +530,7 @@ class Utils(object):
                 )
             Utils.remove_trailing_newlines(output_file_path, None)
         Utils._run_command(command, timeout_secs, timeout_msg, error_msg, _callback)
+
 
     @staticmethod
     def suppress_lib_logs() -> None:
